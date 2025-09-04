@@ -3,13 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POKEMÓM</title>
+    <title>POKEMÓN</title>
 </head>
 <body>
+    <div style="text-align: center; font-weight: bold; font-size: 15px; margin-top: 20px;">
+    <h1>Lista de Pokemones</h1>
+    <div id="pokemon-container"> </div>
+    <div id="buttons" style="font-weight: bold; margin-top: 20px;">
+    <button id="prev-btn">Atrás</button>
+    <button id="next-btn">Siguiente</button>
+    </div>
+    </div>
+    <script>
+        function getPokemonIdFromUrl(url) {
+            const parts = url.split('/');
+            return parts[parts.length - 2];
+        }
+
+        function loadPokemons(url = 'https://pokeapi.co/api/v2/pokemon/') {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    container.innerHTML = '';
+                    data.results.forEach(pokemon => {
+                        const div = document.createElement('div');
+                        div.style.display = 'inline-block';
+                        div.style.margin = '10px';
+                        div.style.textAlign = 'center';
+
+                        const id = getPokemonIdFromUrl(pokemon.url);
+                        const img = document.createElement('img');
+                        img.src = `"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png"`;
+                        img.alt = pokemon.name;
+                        img.width = 96;
+                        img.height = 96;
+
+                        const name = document.createElement('div');
+                        name.textContent = pokemon.name;
+
+                        div.appendChild(img);
+                        div.appendChild(name);
+                        container.appendChild(div);
+                    });
+                    nextUrl = data.next;
+                    prevUrl = data.previous;
+                    prevBtn.disabled = !prevUrl;
+                    nextBtn.disabled = !nextUrl;
+                });
+        }
+    </script>
+    <script>
+        let nextUrl = null;
+        let prevUrl = null;
+        const container = document.getElementById('pokemon-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadPokemons(url = 'https://pokeapi.co/api/v2/pokemon/') {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    container.innerHTML = '';
+                    data.results.forEach(pokemon => {
+                        const div = document.createElement('div');
+                        div.textContent = pokemon.name;
+                        container.appendChild(div);
+                    });
+                    nextUrl = data.next;
+                    prevUrl = data.previous;
+                    prevBtn.disabled = !prevUrl;
+                    nextBtn.disabled = !nextUrl;
+                });
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (prevUrl) loadPokemons(prevUrl);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (nextUrl) loadPokemons(nextUrl);
+        });
+
+        loadPokemons();
+    </script>
     
 </body>
-<script>
-    
-</script>
+
 
 </html>
